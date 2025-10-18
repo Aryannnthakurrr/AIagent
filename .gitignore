@@ -11,7 +11,7 @@ wheels/
 venv/
 env/
 
-# Environment variables (IMPORTANT - contains API keys!)
+# Environment variables 
 .env
 
 # IDE settings 
