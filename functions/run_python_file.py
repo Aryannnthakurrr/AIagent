@@ -1,7 +1,31 @@
 import os
 import subprocess
+import google.genai.types as types
 
-def run_python_file(working_directory: str, file_path: str, args: list = []):
+#Needs to be updated to enforce args type and put a hard limit on args length
+schema_run_python_file = types.FunctionDeclaration(
+    name="run_python_file",
+    description="Executes a Python file within the working directory, with optional arguments.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="The path to the file to execute, relative to the working directory.",
+            ),
+            "args": types.Schema(
+            type=types.Type.ARRAY,
+            items=types.Schema(type=types.Type.STRING),
+            description="Optional command-line arguments to pass to the Python file.",
+            ),
+        },
+        required=["file_path"],
+    )
+)
+
+def run_python_file(working_directory: str, file_path: str, args: list = None):
+    if args is None:
+        args = []
     full_path = os.path.join(working_directory, file_path)
     working_abs = os.path.abspath(working_directory)
     target_abs = os.path.abspath(full_path)
