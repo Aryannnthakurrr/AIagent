@@ -7,14 +7,17 @@ from functions.get_files_info import schema_get_files_info
 from functions.get_file_content import schema_get_file_content
 from functions.run_python_file import schema_run_python_file
 from functions.write_file import schema_write_file
+from functions.call_function import call_function
 
 load_dotenv()
 api_key = os.environ.get("GEMINI_API_KEY")
 
 client = genai.Client(api_key=api_key)
 
+
+#potential for multi turn conversations in future
+#potential for multiple tool calls in a loop to execute complex tasks and multistep plans
 def main():
-    
     #checking if a prompt was entered
     if len(sys.argv) < 2:
         print("Usage: python3 main.py <prompt>")
@@ -38,6 +41,7 @@ def main():
 
     system_prompt = """
 You are a helpful AI coding agent.
+Dont ask follow up questions.
 
 When a user asks a question or makes a request, make a function call plan. You can perform the following operations:
 
@@ -46,9 +50,12 @@ When a user asks a question or makes a request, make a function call plan. You c
 - Execute Python files with optional arguments
 - Write or overwrite files
 
+All paths provided to you will be in the working directory "./calculator".
 All paths you provide should be relative to the working directory. You do not need to specify the working directory in your function calls as it is automatically injected for security reasons.
 
-If you have been provided with a function call, feel free to call the function directly instead of generating a textual response.   
+If you have been provided with a function call, feel free to call the function directly instead of generating a textual response.
+Prefer calling tools directly. Infer sensible defaults when the user intent is clear; don’t ask follow-up questions unless required args are missing or ambiguous.
+In case of vague instructions, make your best guess based on user intent.
 """
 
     available_functions = types.Tool(
@@ -70,7 +77,18 @@ If you have been provided with a function call, feel free to call the function d
     #Checking if the response contains function calls
     if response.function_calls:
         for function_call_part in response.function_calls:
-            print(f"Calling function: {function_call_part.name}({function_call_part.args})")
+            tool_content = call_function(function_call_part, verbose=is_verbose)
+            if not tool_content.parts or not hasattr(tool_content.parts[0], 'function_response'):
+                raise RuntimeError("Function call did not return a valid function response.")
+            
+            function_response = tool_content.parts[0].function_response.response
+            if not function_response:
+                raise RuntimeError("Function did not return any result.")
+            
+            if is_verbose:
+                print(f"-> {function_response}")
+                
+
     #prints the textual response from the model
     else: print(response.text)
 
