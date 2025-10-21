@@ -50,6 +50,10 @@ When a user asks a question or makes a request, make a function call plan. You c
 - Execute Python files with optional arguments
 - Write or overwrite files
 
+*prioritize getting a files info through get_filies_info before reading files to understand the directory structure.
+*prioritize reading files before executing them to understand their content and context.
+*perform checks after your attempted fix to verify if the issue is resolved.
+*add clear comments when writing or modifying code to explain your changes.
 All paths provided to you will be in the working directory "./calculator".
 All paths you provide should be relative to the working directory. You do not need to specify the working directory in your function calls as it is automatically injected for security reasons.
 
@@ -66,38 +70,63 @@ In case of vague instructions, make your best guess based on user intent.
         schema_write_file
     ]
 )
+    counter = 0
+    while counter<20:
+        try:
+            #calling the 2.0 flash model and giving it prompt as content
+            response = client.models.generate_content(
+                model='gemini-2.0-flash-001', 
+                contents=messages,
+                config=types.GenerateContentConfig(tools=[available_functions], system_instruction=system_prompt),
+            )
+            
+            for candidate in response.candidates:
+                messages.append(candidate.content)
 
-    #calling the 2.0 flash model and giving it prompt as content
-    response = client.models.generate_content(
-        model='gemini-2.0-flash-001', 
-        contents=messages,
-        config=types.GenerateContentConfig(tools=[available_functions], system_instruction=system_prompt),
-    )
-    
-    #Checking if the response contains function calls
-    if response.function_calls:
-        for function_call_part in response.function_calls:
-            tool_content = call_function(function_call_part, verbose=is_verbose)
-            if not tool_content.parts or not hasattr(tool_content.parts[0], 'function_response'):
-                raise RuntimeError("Function call did not return a valid function response.")
-            
-            function_response = tool_content.parts[0].function_response.response
-            if not function_response:
-                raise RuntimeError("Function did not return any result.")
-            
-            if is_verbose:
-                print(f"-> {function_response}")
+            #Checking if the response contains function calls
+            if response.function_calls:
+                for function_call_part in response.function_calls:
+                    tool_content = call_function(function_call_part, verbose=is_verbose)
+                    if not tool_content.parts or not hasattr(tool_content.parts[0], 'function_response'):
+                        print("warning: Function call did not return a valid function response.")
+                        continue
+
+                    function_response = tool_content.parts[0].function_response.response 
+                    if not function_response:
+                        print("warning: Function response is empty.")
+                        continue
+
+                    messages.append(
+                        types.Content(
+                            role="user",
+                            parts=[
+                                types.Part.from_function_response(
+                                    name=function_call_part.name,
+                                    response=function_response,
+                                )
+                            ],
+                        )
+                    )
                 
+                if is_verbose:
+                    print(f"-> {function_response}")
+            else:
+                #No function calls, so we assume the agent has completed its task
+                print(response.text)
+                break
+        except Exception as e:
+            print("Error occured during agent turn", str(e))
+            continue
 
-    #prints the textual response from the model
-    else: print(response.text)
+        counter += 1
 
-    if is_verbose:
-        print("User prompt:", user_prompt)
-        #prints input tokens
-        print("Prompt tokens:", response.usage_metadata.prompt_token_count)
-        #prints output tokens
-        print("Response tokens:", response.usage_metadata.candidates_token_count)
+        if is_verbose:
+            print("User prompt:", user_prompt)
+            #prints input tokens
+            print("Prompt tokens:", response.usage_metadata.prompt_token_count)
+            #prints output tokens
+            print("Response tokens:", response.usage_metadata.candidates_token_count)
+    
 
 
 if __name__ == "__main__":
