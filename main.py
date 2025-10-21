@@ -52,8 +52,11 @@ When a user asks a question or makes a request, make a function call plan. You c
 
 *prioritize getting a files info through get_filies_info before reading files to understand the directory structure.
 *prioritize reading files before executing them to understand their content and context.
-*perform checks after your attempted fix to verify if the issue is resolved.
+*perform checks after your attempted fix to verify if the issue is resolved in case of tool calls.
 *add clear comments when writing or modifying code to explain your changes.
+
+*important: Make sure to provide a summary of all the actions you took once the task is complete.
+
 All paths provided to you will be in the working directory "./calculator".
 All paths you provide should be relative to the working directory. You do not need to specify the working directory in your function calls as it is automatically injected for security reasons.
 
