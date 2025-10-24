@@ -116,6 +116,12 @@ In case of vague instructions, make your best guess based on user intent.
             else:
                 #No function calls, so we assume the agent has completed its task
                 print(response.text)
+                if is_verbose:
+                    print("User prompt:", user_prompt)
+                    #prints input tokens
+                    print("Prompt tokens:", response.usage_metadata.prompt_token_count)
+                    #prints output tokens
+                    print("Response tokens:", response.usage_metadata.candidates_token_count)
                 break
         except Exception as e:
             print("Error occured during agent turn", str(e))
@@ -123,12 +129,7 @@ In case of vague instructions, make your best guess based on user intent.
 
         counter += 1
 
-        if is_verbose:
-            print("User prompt:", user_prompt)
-            #prints input tokens
-            print("Prompt tokens:", response.usage_metadata.prompt_token_count)
-            #prints output tokens
-            print("Response tokens:", response.usage_metadata.candidates_token_count)
+        
     
 
 
