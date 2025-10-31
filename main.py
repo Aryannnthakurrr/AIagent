@@ -16,9 +16,8 @@ client = genai.Client(api_key=api_key)
 
 
 #potential for multi turn conversations in future
-#potential for multiple tool calls in a loop to execute complex tasks and multistep plans
 def main():
-    #checking if a prompt was entered
+
     if len(sys.argv) < 2:
         print("Usage: python3 main.py <prompt>")
         sys.exit(1)
@@ -118,13 +117,21 @@ In case of vague instructions, make your best guess based on user intent.
                 print(response.text)
                 if is_verbose:
                     print("User prompt:", user_prompt)
-                    #prints input tokens
                     print("Prompt tokens:", response.usage_metadata.prompt_token_count)
-                    #prints output tokens
                     print("Response tokens:", response.usage_metadata.candidates_token_count)
                 break
         except Exception as e:
-            print("Error occured during agent turn", str(e))
+            error_str = str(e)
+            #Break on quota errors after checking retry delay
+            if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+                retry_delay = 2 ** counter #exponential retry delay
+                if counter >= 3:
+                    print(f"Quota exhausted after {counter} retries")
+                    break
+                print(f"Rate limited.Retrying in {retry_delay}s...(attempt {counter}/3)")
+                time.sleep(retry_delay)
+            else:
+                print("Error occured during agent turn", str(e))
             continue
 
         counter += 1
