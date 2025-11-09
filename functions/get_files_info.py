@@ -21,9 +21,9 @@ def get_files_info(working_directory, directory="."):
         # Building the full path
         full_path = os.path.join(working_directory, directory)
         
-        # Convert to absolute paths
-        working_abs = os.path.abspath(working_directory)
-        target_abs = os.path.abspath(full_path)
+        # Resolve to absolute paths and follow symlinks for security
+        working_abs = os.path.realpath(working_directory)
+        target_abs = os.path.realpath(full_path)
         
         # Validating boundaries
         if not target_abs.startswith(working_abs):

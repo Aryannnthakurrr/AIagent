@@ -10,7 +10,7 @@ class Calculator:
             '+': 1,
             '-': 1,
             '*': 2,
-            '/': 2,
+            '/': 2
         }
 
     def evaluate(self, expression):
@@ -30,6 +30,12 @@ class Calculator:
                     tokens.append(current_number)
                     current_number = ""
                 tokens.append(char)
+            elif char == '(' or char == ')':
+                if current_number:
+                    tokens.append(current_number)
+                    current_number = ""
+                tokens.append(char)
+
             elif char.isspace():
                 if current_number:
                     tokens.append(current_number)
@@ -46,7 +52,7 @@ class Calculator:
 
         for token in tokens:
             if token in self.operators:
-                while operators and self.precedence[token] <= self.precedence.get(operators[-1], 0):
+                while operators and operators[-1] != '(' and self.precedence[token] <= self.precedence.get(operators[-1], 0):
                     self._apply_operator(operators, values)
                 operators.append(token)
             elif token == '(':
@@ -54,7 +60,10 @@ class Calculator:
             elif token == ')':
                 while operators and operators[-1] != '(':
                     self._apply_operator(operators, values)
-                operators.pop()  # Remove '('
+                if operators:
+                    operators.pop()  # Remove '('
+                else:
+                    raise ValueError("Unmatched parentheses")
             else:
                 try:
                     values.append(float(token))

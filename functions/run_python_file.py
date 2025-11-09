@@ -27,8 +27,9 @@ def run_python_file(working_directory: str, file_path: str, args: list = None):
     if args is None:
         args = []
     full_path = os.path.join(working_directory, file_path)
-    working_abs = os.path.abspath(working_directory)
-    target_abs = os.path.abspath(full_path)
+    # Resolve to absolute paths and follow symlinks for security
+    working_abs = os.path.realpath(working_directory)
+    target_abs = os.path.realpath(full_path)
     
     
     try:

@@ -21,9 +21,9 @@ schema_get_file_content = types.FunctionDeclaration(
 def get_file_content(working_directory, file_path):
 
     full_path = os.path.join(working_directory, file_path)
-    # Convert to absolute paths
-    working_abs = os.path.abspath(working_directory)
-    target_abs = os.path.abspath(full_path)
+    # Resolve to absolute paths and follow symlinks for security
+    working_abs = os.path.realpath(working_directory)
+    target_abs = os.path.realpath(full_path)
         
     # Validating boundaries
     if not target_abs.startswith(working_abs):

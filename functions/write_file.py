@@ -23,8 +23,9 @@ schema_write_file = types.FunctionDeclaration(
 
 def write_file(working_directory, file_path, content):
     full_path = os.path.join(working_directory, file_path)
-    working_abs = os.path.abspath(working_directory)
-    target_abs = os.path.abspath(full_path)
+    # Resolve to absolute paths and follow symlinks for security
+    working_abs = os.path.realpath(working_directory)
+    target_abs = os.path.realpath(full_path)
 
     try:
         common = os.path.commonpath([working_abs, target_abs])
