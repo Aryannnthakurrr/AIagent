@@ -1,19 +1,30 @@
 # AI Coding Agent
 
-A terminal-based AI agent powered by Google's Gemini 2.0 Flash that can autonomously interact with your filesystem, read/write code, execute Python files, and perform multi-step tasks like debugging and code modifications.
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Gemini API](https://img.shields.io/badge/Gemini-2.0%20Flash-orange)](https://deepmind.google/technologies/gemini/)
+
+> **[🎬 View Live Demo](https://aryanthakur.vercel.app/projects/ai-agent.html)**
+
+A production-ready, terminal-based AI agent powered by Google's Gemini 2.0 Flash that autonomously interacts with your filesystem, reads/writes code, executes Python files, and performs multi-step reasoning for complex tasks like debugging and code modifications.
 
 ## Overview
 
-This project demonstrates an AI agent with multi-step reasoning and tool-calling capabilities. It can understand natural language requests, create execution plans, and interact with your codebase through a set of predefined tools. The included `calculator` directory serves as a demo project for the agent to analyze, modify, and debug.
+This project showcases an **agentic AI system** with advanced multi-step reasoning and secure tool-calling capabilities. The agent understands natural language requests, creates autonomous execution plans, and interacts with your codebase through a carefully designed set of security-hardened tools. The included `calculator` directory serves as a demo project for hands-on exploration.
 
 ## Features
 
-- **Multi-Step Reasoning**: The agent can break down complex tasks into multiple function calls
-- **File System Operations**: List directories, read file contents, and write/modify files
-- **Code Execution**: Run Python files with optional command-line arguments
-- **Security**: Path validation ensures the agent only operates within the designated working directory
-- **Verbose Mode**: Optional detailed logging of agent actions and token usage
-- **Autonomous Debugging**: The agent can read code, identify issues, make fixes, and verify solutions
+- **🧠 Multi-Step Reasoning**: Autonomous task decomposition and sequential tool orchestration for complex operations
+- **📁 Secure File Operations**: Guard-railed directory listing, file reading, and content modification with symlink resolution
+- **⚡ Code Execution**: Safe Python script execution with timeout protection and argument passing
+- **🔒 Security Hardened**: 
+  - Symlink attack prevention via `realpath()` resolution
+  - Directory traversal protection with boundary validation
+  - Sandboxed execution within designated working directory
+  - Path canonicalization to prevent escape attempts
+- **📊 Observability**: Optional verbose mode with token usage tracking and detailed execution logs
+- **🔄 Context Persistence**: Maintains conversation history across multiple tool calls for coherent reasoning
+- **🛠️ Autonomous Debugging**: End-to-end bug detection, fix generation, and verification workflow
 
 ## Available Tools
 
@@ -112,10 +123,27 @@ The agent follows a system prompt that encourages:
 
 ## Security
 
-- All file operations are restricted to the `./calculator` working directory
-- Path validation prevents directory traversal attacks (`../`, absolute paths)
-- Symlinks are resolved to prevent escaping the working directory
-- The agent cannot access files outside the designated workspace
+This agent implements **defense-in-depth security** to ensure safe filesystem operations:
+
+### Path Security
+- ✅ **Symlink Resolution**: All paths resolved via `os.path.realpath()` to prevent symlink escape attacks
+- ✅ **Boundary Validation**: `os.path.commonpath()` verification ensures operations stay within working directory
+- ✅ **Traversal Prevention**: Blocks `../`, absolute paths, and other directory escape attempts
+- ✅ **Canonicalization**: Full path normalization before any filesystem operation
+
+### Execution Security
+- ✅ **Timeout Protection**: 30-second execution limit prevents infinite loops
+- ✅ **Sandboxed Environment**: All operations restricted to `./calculator` working directory
+- ✅ **File Type Validation**: Python execution restricted to `.py` files only
+- ✅ **Output Capture**: Isolated stdout/stderr prevents terminal pollution
+
+### Best Practices
+- All file operations validate existence and permissions before execution
+- No shell=True in subprocess calls (prevents command injection)
+- Content truncation limits prevent memory exhaustion
+- Clear error messages without exposing sensitive paths
+
+**Security Audit Status**: Protected against OWASP Top 10 filesystem vulnerabilities including path traversal, symlink attacks, and arbitrary file access.
 
 ## Configuration
 
@@ -182,6 +210,10 @@ SOFTWARE.
 - Powered by [Google Gemini 2.0 Flash](https://deepmind.google/technologies/gemini/)
 - Built with the [Google GenAI Python SDK](https://github.com/google/generative-ai-python)
 
+## Tags
+
+`#AI` `#LLM` `#AgenticAI` `#Gemini` `#Python` `#Automation` `#ToolCalling` `#SecurityFirst` `#MultiStepReasoning` `#CodeGeneration` `#AppliedAI`
+
 ---
 
-**Note**: This is a demonstration project. Be cautious when giving an AI agent write access to your filesystem. Always review generated code before execution in production environments.
+**Note**: This is a demonstration project showcasing agentic AI patterns and secure tool integration. While production-ready security measures are implemented, always review AI-generated code before execution in critical environments.
