@@ -143,7 +143,7 @@ This agent implements **defense-in-depth security** to ensure safe filesystem op
 - Content truncation limits prevent memory exhaustion
 - Clear error messages without exposing sensitive paths
 
-**Security Audit Status**: Protected against OWASP Top 10 filesystem vulnerabilities including path traversal, symlink attacks, and arbitrary file access.
+Protected against vulnerabilities including path traversal, symlink attacks, and arbitrary file access.
 
 ## Configuration
 
